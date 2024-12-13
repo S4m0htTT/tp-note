@@ -26,3 +26,62 @@ php bin/console make:migration
 ```dotenv
 php bin/console doctrine:migrations:migrate
 ```
+
+# Postman
+Un fichier JSON est disponible à la source du projet.
+
+# Routes de l'Application
+
+## 1. Routes de la Gestion des Réservations
+
+### 1.1. Récupérer toutes les réservations
+- **Méthode** : GET
+- **Route** : `/reservation`
+  
+### 1.2. Récupérer une réservation par son ID
+- **Méthode** : GET
+- **Route** : `/reservation/{id}`
+
+### 1.3. Créer une réservation
+- **Méthode** : POST
+- **Route** : `/reservation`
+
+### 1.4. Ajouter une réservation à un utilisateur
+- **Méthode** : POST
+- **Route** : `/reservation/user/{id}/{email}`
+
+### 1.5. Supprimer une réservation
+- **Méthode** : DELETE
+- **Route** : `/reservation/{id}`
+
+---
+
+## 2. Routes de la Gestion des Utilisateurs
+
+### 2.1. Connexion de l'utilisateur (Login)
+- **Méthode** : POST
+- **Route** : `/login`
+
+### 2.2. Récupérer tous les utilisateurs
+- **Méthode** : GET
+- **Route** : `/user`
+
+### 2.3. Créer un utilisateur
+- **Méthode** : POST
+- **Route** : `/user`
+
+### 2.4. Supprimer un utilisateur
+- **Méthode** : DELETE
+- **Route** : `/user/{id}`
+
+### 2.5. Mettre à jour les informations d'un utilisateur
+- **Méthode** : PUT
+- **Route** : `/user/{id}`
+
+### 2.6. Récupérer les réservations d'un utilisateur
+- **Méthode** : GET
+- **Route** : `/user/reservation/{id}`
+
+### 2.7. Récupérer un utilisateur par son ID
+- **Méthode** : GET
+- **Route** : `/user/{id}`
