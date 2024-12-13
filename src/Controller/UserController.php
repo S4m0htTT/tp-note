@@ -78,13 +78,13 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/{id}', name: 'update user', methods: ['PUT'])]
-    public function updateBook(int $id, Request $request, EntityManagerInterface
+    public function updateUser(int $id, Request $request, EntityManagerInterface
     $entityManager): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($id);
         if (!$user) {
             return new JsonResponse(
-                ['message' => 'user does not exist'],
+                ['message' => 'user not found'],
                 404
             );
         }
@@ -97,5 +97,43 @@ class UserController extends AbstractController
 
         $entityManager->flush();
         return new JsonResponse(['status' => 'user updated!'], 200);
+    }
+
+    #[Route('/user/reservation/{id}', name: 'get reservation by user', methods: ['GET'])]
+    public function getReservationByUserId(int $id, Request $request, EntityManagerInterface
+    $entityManager): JsonResponse
+    {
+        $user = $entityManager->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(
+                ['message' => 'user not found'],
+                404
+            );
+        }
+        $reservations = $user->getReservations();
+        return new JsonResponse($reservations, 200);
+    }
+
+    #[Route('/user/{id}', name: 'get user by id', methods: ['GET'])]
+    public function getuserById(int $id, Request $request, EntityManagerInterface
+    $entityManager): JsonResponse
+    {
+        $user = $entityManager->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(
+                ['message' => 'user not found'],
+                404
+            );
+        }
+        return new JsonResponse(
+            [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+                'phone_number' => $user->getPhoneNumber(),
+                'reservations' => $user->getReservations()
+            ],
+            200
+        );
     }
 }
