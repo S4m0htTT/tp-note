@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
+use App\Entity\User;
+use App\Repository\ReservationRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,8 +31,28 @@ class ReservationController extends AbstractController
         return $this->json($data);
     }
 
+    #[Route('/reservation/{id}', name: 'get reservation by Id', methods: ['GET'])]
+    public function getReservationById(EntityManagerInterface $entityManager, int $id): JsonResponse
+    {
+        $reservation = $entityManager->getRepository(Reservation::class)->find($id);
+        if (!$reservation) {
+            return new JsonResponse(
+                ['message' => 'Reservation not found'],
+                404
+            );
+        }
+        return $this->json([
+            'id' => $reservation->getId(),
+            'event_name' => $reservation->getEventName(),
+            'time_slot' => $reservation->getTimeSlot(),
+            'date' => $reservation->getDate(),
+            'relation' => $reservation->getRelations()
+        ], 200);
+    }
+
     #[Route('/reservation', name: 'create reservation', methods: ['POST'])]
-    public function createReservation(Request $request, EntityManagerInterface $entityManager): JsonResponse {
+    public function createReservation(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['date'], $data['time_slot'], $data['event_name'])) {
@@ -48,5 +71,26 @@ class ReservationController extends AbstractController
         $entityManager->persist($reservation);
         $entityManager->flush();
         return new JsonResponse('Reservation created successfully', 201);
+    }
+
+    #[Route('/reservation/user/{id}/{email}', name: 'Set reservation', methods: ['POST'])]
+    public function setRelationTuUser(int $id, string $email, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) {
+            return new JsonResponse('User not found', 404);
+        }
+
+        $reservation = $entityManager->getRepository(Reservation::class)->find($id);
+        if (!$reservation) {
+            return new JsonResponse('Reservation not found', 404);
+        }
+
+        $user->addReservation($reservation);
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new JsonResponse("Reservation added", 200);
     }
 }
