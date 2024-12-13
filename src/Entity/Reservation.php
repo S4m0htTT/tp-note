@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ReservationRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,11 +14,12 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: "datetime")]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column]
-    private ?\DateInterval $timeSlot = null;
+    // Le champ timeSlot sera une chaîne pour stocker la plage horaire sous forme de string
+    #[ORM\Column(type: "string", length: 255)]
+    private ?string $timeSlot = null;
 
     #[ORM\Column(length: 255)]
     private ?string $eventName = null;
@@ -49,13 +49,19 @@ class Reservation
         return $this;
     }
 
-    public function getTimeSlot(): ?\DateInterval
+    public function getTimeSlot(): ?string
     {
         return $this->timeSlot;
     }
 
-    public function setTimeSlot(\DateInterval $timeSlot): static
+    // La plage horaire est maintenant une chaîne de caractères
+    public function setTimeSlot(string $timeSlot): static
     {
+        // Validation de la plage horaire pour s'assurer qu'elle est bien au format "HH:MM-HH:MM"
+        if (!preg_match('/^\d{2}:\d{2}-\d{2}:\d{2}$/', $timeSlot)) {
+            throw new \InvalidArgumentException("Le format de la plage horaire est invalide. Utilisez le format HH:MM-HH:MM.");
+        }
+
         $this->timeSlot = $timeSlot;
 
         return $this;
@@ -84,5 +90,4 @@ class Reservation
 
         return $this;
     }
-
 }
